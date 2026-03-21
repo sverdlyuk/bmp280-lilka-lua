@@ -271,7 +271,7 @@ local function do_measure()
     if bmp280_read() then
         measure_count = measure_count + 1
         local e = {
-            n=measure_count, time_s=math.floor(uptime),
+            n=measure_count, time_s = os.date("%H:%M"),
             temp_raw=current.temp_raw, press_pa=current.press_pa,
             adc_T=current.adc_T,      adc_P=current.adc_P,
             var1_T=current.var1_T,    var2_T=current.var2_T,
@@ -315,15 +315,6 @@ function lilka.update(delta)
     if screen == "main" then
         if btn.b.just_pressed then util.exit() end
         if btn.a.just_pressed then
-            if initialized then
-                bmp280_trigger()
-            else
-                log_lines = {}
-                initialized = bmp280_init()
-                if initialized then bmp280_trigger() end
-            end
-        end
-        if btn.c.just_pressed then
             screen="debug_list"; dbg_sel=1; dbg_scroll=1
         end
         if btn.d.just_pressed then
@@ -417,10 +408,9 @@ local function draw_main()
         display.set_cursor(20, 184)
         display.print(fmt_press(current.press_pa).." hPa")
     end
-    draw_btn(30,         H-20, "A", "Виміряти")
-    draw_btn(W//2 - 10,  H-20, "B", "Вихід", RED)
-    draw_btn(W-80,       H-210, "C", "Debug", GRAY)
-    draw_btn(W//2 + 60,  H-20, "D", "Графік", YELLOW)
+    draw_btn(30,         H-20, "D", "Графік")
+    draw_btn(W//2 - 20,  H-20, "B", "Вихід", RED)
+    draw_btn(W//2 + 60,  H-20, "A", "Журнал", YELLOW)
 end
 
 -- Debug: список
@@ -428,9 +418,9 @@ local function draw_debug_list()
     local W = display.width
     local H = display.height
     display.fill_screen(BLACK)
-    display.set_font("5x7")
+    display.set_font("6x13")
     display.set_text_color(CYAN)
-    display.set_cursor(4, 10)
+    display.set_cursor(25, 20)
     display.print("ВИМІРИ ("..#history..")  UP/DN A=деталі B=вихід")
     if #history == 0 then
         display.set_text_color(GRAY)
@@ -441,30 +431,21 @@ local function draw_debug_list()
             local idx = dbg_scroll + i
             if idx > #history then break end
             local e = history[idx]
-            local y = 22 + i * 18
+            local y = 40 + i * 18
             if idx == dbg_sel then
                 display.fill_rect(0, y-1, W, 17, DKGRAY)
                 display.set_text_color(YELLOW)
             else
                 display.set_text_color(WHITE)
             end
-            display.set_font("5x7")
-            display.set_cursor(4, y+5)
+            display.set_font("7x13")
+            display.set_cursor(18, y+5)
             display.print(string.format("#%-3d %s  %s C",
-                e.n, fmt_time(e.time_s), fmt_temp(e.temp_raw)))
+                e.n, e.time_s, fmt_temp(e.temp_raw)))
         end
-        display.set_text_color(GRAY)
-        display.set_font("5x7")
-        display.set_cursor(W-40, H-32)
-        display.print(dbg_sel.."/"..#history)
     end
-    draw_btn(W//4,   H-20, "A", "Деталі")
-    draw_btn(W//2,   H-20, "^", "вгору")
-    draw_btn(3*W//4, H-20, "v", "вниз")
-    display.set_font("5x7")
-    display.set_text_color(RED)
-    display.set_cursor(4, H-15)
-    display.print("B=назад")
+     draw_btn(30,         H-20, "A", "Деталі")
+draw_btn(W//2 - 20,  H-20, "B", "Назад", RED)
 end
 
 -- Debug: деталі виміру
@@ -478,8 +459,8 @@ local function draw_debug_detail()
     local e = history[dbg_sel]
     display.set_font("5x7")
     display.set_text_color(CYAN)
-    display.set_cursor(4, 10)
-    display.print("Вимір #"..e.n.."  "..fmt_time(e.time_s))
+    display.set_cursor(4, 30)
+    display.print("Вимір #"..e.n.."  "..e.time_s)
     local rows = {
         {"adc_T",  e.adc_T,    "сирі дані T"},
         {"adc_P",  e.adc_P,    "сирі дані P"},
@@ -494,7 +475,7 @@ local function draw_debug_detail()
         {"P(Pa)",  e.press_pa, "тиск Па"},
         {"Тиск",   nil,        fmt_press(e.press_pa).." hPa"},
     }
-    local y = 22
+    local y = 65
     for _, row in ipairs(rows) do
         if y > H-25 then break end
         display.set_cursor(4, y)
@@ -611,15 +592,10 @@ local function draw_graph()
     -- Поточний діапазон часу
     display.set_text_color(GRAY)
     display.set_cursor(GX, GY + GH + 6)
-    display.print(fmt_time(history[i_end].time_s).."  "..fmt_time(history[i_start].time_s))
+    display.print(history[i_end].time_s.."  "..history[i_start].time_s)
 
     -- Кнопки
-    draw_btn(W//4,   H-20, "<", "Старіші", BLUE)
-    draw_btn(3*W//4, H-20, ">", "Новіші", BLUE)
-    display.set_font("5x7")
-    display.set_text_color(RED)
-    display.set_cursor(4, H-15)
-    display.print("B=назад")
+    draw_btn(W//2 - 20, H-20, "B", "Назад", RED)
 end
 
 function lilka.draw()
