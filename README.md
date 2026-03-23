@@ -1,8 +1,9 @@
 # BMP280 для Лілки
 
 Програма на Lua для відображення температури та тиску з датчика BMP280 на консолі [Лілка](https://lilka.dev). Файл bmp280+bme280 може приймати значення з модулів з bmp280 і bme280
-
+<img width="280" height="240" alt="screenshot_20260323_134154" src="https://github.com/user-attachments/assets/6894f168-e005-4b2f-939d-05929a50cecc" />
 <img width="280" height="240" alt="screenshot_20260318_100938" src="https://github.com/user-attachments/assets/92556a42-37e2-40d7-ae90-4b285db81f36" />
+
 <img width="280" height="240" alt="screenshot_20260318_100948" src="https://github.com/user-attachments/assets/44991a67-c414-4210-922a-34e19bce7535" />
 <img width="280" height="240" alt="screenshot_20260318_094815" src="https://github.com/user-attachments/assets/a6a18d25-9e7e-4184-bfd8-0828ac36a6b3" />
 
